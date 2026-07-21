@@ -1,0 +1,56 @@
+# agent-kb project configuration.
+#
+# Copy this file to YOUR repository's root as `kb.yaml` and adapt it.
+# It declares which corpora get indexed and how ontology entries bind to
+# code symbols. The agent-kb package itself carries no project knowledge.
+
+# Project identity. Derives the default Qdrant collection name
+# ("<project>_kb", slug-sanitised) and the MCP server name ("<project>-kb").
+project: my-project
+
+# Optional overrides:
+# mcp_name: my-project-kb
+# default_collection: my_project_theory
+
+sources:
+  # --- markdown ------------------------------------------------------------
+  # Heading-aware chunking at H2/H3 boundaries; YAML frontmatter (title,
+  # description, tags, related) is lifted onto each chunk's payload.
+  user_docs:
+    type: markdown
+    root: docs/guides            # repo-relative corpus root, walked recursively
+    uri_prefix: "docs://guides"  # optional: chunk doc_uri becomes
+                                 #   <uri_prefix>/<path relative to root>
+                                 # so your internal link scheme survives retrieval.
+                                 # Omit to default to docs://<repo-relative-path>.
+    # lang: en
+
+  arch_docs:
+    type: markdown
+    root: docs
+    exclude: [guides, ontology]  # top-level subdirs of `root` with their own indexers
+
+  # --- ontology ------------------------------------------------------------
+  # Concept → code-symbol bindings: markdown files with `concept:` frontmatter
+  # listing `implements:` / `underlying:` / `related_symbols:`. The KB's
+  # load-bearing layer — see README "The ontology layer".
+  ontology:
+    type: ontology
+    root: docs/ontology
+
+  # --- make targets --------------------------------------------------------
+  # Parses the `target: deps ## description` convention, one chunk per target,
+  # so "how do I build X" retrieves the exact make invocation.
+  make_targets:
+    type: make_targets
+    files: [Makefile, "scripts/make/*.mk"]   # repo-relative paths or globs
+
+# Only needed for the ontology maintenance loop (kb verify / heal / suggest-new).
+# Describes where public code symbols live and which classes count as concepts.
+symbols:
+  language: cpp                     # cpp is the only parser today
+  include_root: include/myproject   # public header tree, parsed with tree-sitter
+  base_classes: [Strategy]          # classes deriving from these are discoverable
+  strip_suffixes: [Strategy, Impl]  # trimmed when deriving stub titles and slugs
+  stub_subdir: strategies           # suggest-new writes stubs under <ontology root>/<this>
+  stub_kind: strategy               # `kind:` frontmatter value for generated stubs
