@@ -155,6 +155,7 @@ def run_index(
         )
         existing_paths = set(existing.keys())
         seen_paths = set()
+        changed_paths: set[str] = set()
         skipped_counter = [0]
 
         def callback(path: str, content_hash: str) -> bool:
@@ -162,6 +163,7 @@ def run_index(
             if existing.get(path) == content_hash:
                 skipped_counter[0] += 1
                 return False
+            changed_paths.add(path)
             return True
 
     total = 0
@@ -211,9 +213,29 @@ def run_index(
             )
 
     # Orphan cleanup: paths that were in Qdrant but the indexer didn't yield
-    # this run — the source file has been deleted or moved.
+    # this run — the source file has been deleted or moved. Also evict stale
+    # chunks of files that changed but now yield ZERO chunks (e.g. a makefile
+    # whose documented targets all moved elsewhere): they were seen, so they
+    # aren't orphans, but no batch carried them through the pre-upsert
+    # eviction either.
     deleted_orphans = 0
     if incremental and seen_paths is not None:
+        for path in changed_paths - paths_evicted:
+            if path not in existing_paths:
+                continue  # new file that produced no chunks — nothing stale
+            try:
+                _with_retry(
+                    lambda p=path: store.delete_by_path(
+                        indexer.collection, indexer.name, p
+                    ),
+                    op_name=f"stale delete_by_path({path})",
+                )
+            except BaseException as exc:
+                print(
+                    f"  ✗ stale-chunk cleanup failed for {path} ({type(exc).__name__})",
+                    file=sys.stderr,
+                    flush=True,
+                )
         orphans = existing_paths - seen_paths
         for path in orphans:
             try:

@@ -226,3 +226,31 @@ def test_runner_skips_unchanged_files(tmp_path: Path, monkeypatch):
     assert result.deleted_orphans == 0
     assert fake_store.deleted_paths == []
     assert fake_store.upserted_ids == []
+
+
+def test_runner_evicts_stale_chunks_when_file_now_yields_nothing(tmp_path: Path, monkeypatch):
+    """A changed file that no longer produces any chunks (e.g. its indexable
+    content moved elsewhere) must still have its old chunks evicted — it is
+    seen (so not an orphan) but appears in no upsert batch."""
+    from kb.runner import run_index
+    from kb.indexers import REGISTRY
+
+    ontology_root = tmp_path / "ontology"
+    ontology_root.mkdir()
+    # Frontmatter without a `concept:` key → indexer yields no chunks.
+    (ontology_root / "x.md").write_text("---\ntitle: X\n---\nNo longer a concept.\n")
+
+    fake_store = _FakeStore(existing={"ontology/x.md": "stalehash"})
+
+    class _ScopedOntologyIndexer(OntologyIndexer):
+        def __init__(self):
+            super().__init__(root=ontology_root)
+            self._repo_root = tmp_path
+
+    monkeypatch.setitem(REGISTRY, "ontology", _ScopedOntologyIndexer)
+
+    result = run_index("ontology", provider=_FakeProvider(), store=fake_store)
+
+    assert "ontology/x.md" in fake_store.deleted_paths
+    assert result.upserted == 0
+    assert result.deleted_orphans == 0
