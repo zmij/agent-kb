@@ -235,6 +235,13 @@ If you are an LLM agent working in a repo that uses agent-kb, read
 [AGENTS.md](AGENTS.md) for when to search the KB, how to phrase queries per
 source, and how to run the ontology maintenance loop.
 
+## Contributing
+
+`main` is branch-protected: no direct pushes (admins and their agents
+included), linear history, everything lands through a pull request. Run
+`make test` before opening one. This is the same **Gate** discipline the
+tool exists to enforce — the repo practises it on itself.
+
 ## Licence
 
 MIT.
