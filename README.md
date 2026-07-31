@@ -29,7 +29,27 @@ The KB deliberately stops at the symbol *name*. It never stores file paths or
 line numbers for code — that's the LSP's job, and indexing source into a
 vector store just guarantees churn.
 
-## Install
+## Install as a Claude Code plugin (fastest)
+
+The repo doubles as a plugin marketplace covering both grounding repos:
+
+```
+/plugin marketplace add zmij/agent-kb
+/plugin install agent-kb@agent-grounding
+/plugin install agent-code-intel@agent-grounding   # optional: the LSP layer
+```
+
+The `agent-kb` plugin ships the `knowledge-base` operating skill **and** the
+MCP server — Claude Code launches `kb serve-mcp` via `uv run` from the plugin
+checkout, and the server discovers your repo root by walking up from the
+session's working directory to the nearest `kb.yaml`. No per-worktree
+registration needed.
+
+Still on you: a `kb.yaml` at your repo root (below), Qdrant running
+(`docker compose up -d` in the plugin/clone dir, or `make kb-up`), and one
+`kb index --all`. Requires [uv](https://docs.astral.sh/uv/) on PATH.
+
+## Install (clone / submodule)
 
 Requirements: Python 3.11+, [uv](https://docs.astral.sh/uv/), Docker (for Qdrant).
 

@@ -1,0 +1,19 @@
+{
+  "name": "agent-kb",
+  "version": "0.1.0",
+  "description": "Project knowledge base for coding agents: Qdrant-backed semantic search over your docs, ontology bindings, and make targets, exposed over MCP, with an operating skill that teaches the agent when to search.",
+  "author": {
+    "name": "Sergei Fedorov",
+    "url": "https://github.com/zmij"
+  },
+  "homepage": "https://github.com/zmij/agent-kb",
+  "repository": "https://github.com/zmij/agent-kb",
+  "license": "MIT",
+  "keywords": ["knowledge-base", "rag", "grounding", "mcp", "qdrant"],
+  "mcpServers": {
+    "agent-kb": {
+      "command": "uv",
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "kb", "serve-mcp"]
+    }
+  }
+}

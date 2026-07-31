@@ -1,0 +1,25 @@
+{
+  "name": "agent-grounding",
+  "owner": {
+    "name": "Sergei Fedorov",
+    "url": "https://github.com/zmij"
+  },
+  "metadata": {
+    "description": "Grounding toolkit for coding agents: knowledge base + code intelligence"
+  },
+  "plugins": [
+    {
+      "name": "agent-kb",
+      "source": "./",
+      "description": "Knowledge base: semantic search over your docs, ontology bindings and make targets — MCP server + operating skill"
+    },
+    {
+      "name": "agent-code-intel",
+      "source": {
+        "source": "github",
+        "repo": "zmij/agent-code-intel"
+      },
+      "description": "Code intelligence: Serena/LSP operating skill for live symbol resolution in the current worktree"
+    }
+  ]
+}
