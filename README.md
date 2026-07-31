@@ -45,9 +45,10 @@ checkout, and the server discovers your repo root by walking up from the
 session's working directory to the nearest `kb.yaml`. No per-worktree
 registration needed.
 
-Still on you: a `kb.yaml` at your repo root (below), Qdrant running
-(`docker compose up -d` in the plugin/clone dir, or `make kb-up`), and one
-`kb index --all`. Requires [uv](https://docs.astral.sh/uv/) on PATH.
+Then type `/kb-setup` in your repo: the bundled setup skill walks the agent
+through the rest — start Qdrant, author a starter `kb.yaml` (it asks which
+doc trees to index), run the first index, and verify search. Requires
+[uv](https://docs.astral.sh/uv/) on PATH and Docker for Qdrant.
 
 ## Install (clone / submodule)
 
