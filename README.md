@@ -148,10 +148,31 @@ kind: technique
 implements:
   - sudoku::XWingTechnique
 related_concepts: [swordfish]
+owner: solver                      # optional: whose concept is it
+stores:                            # optional: where its state actually lives
+  - solver.technique_registry
 ---
 
 A fish pattern on two rows and two columns…
 ```
+
+`implements:` answers *which code is this*. `owner:` and `stores:` above are
+not special — **every frontmatter key is indexed**, into the payload so an
+agent can read it structurally, and into the body so a search can hit it. The
+package prescribes no vocabulary past the bindings: invent the fields your
+domain needs and they are carried without the indexer being taught about
+them.
+
+That matters because a binding cannot answer *whose is this* or *where would
+a change go* when a concept's home is a table, a schema or a vocabulary file
+rather than a class — and that is the question usually asked first.
+
+Nothing validates these fields: `kb verify` resolves code symbols, and they
+are not symbols. The one exception is the small set of keys the indexer owns
+in the payload (`source`, `collection`, `path`, `content_hash`, `doc_uri`,
+`content`, `lang`); an entry setting one is ignored, because a stray `path`
+would make a chunk lie about where it came from and incremental indexing
+reads it.
 
 The chunk text bakes the symbol list into the embeddable body, so "which
 class implements X-Wing" hits the bound names, not just prose. And because

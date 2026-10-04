@@ -1,6 +1,6 @@
 {
   "name": "agent-kb",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Project knowledge base for coding agents: Qdrant-backed semantic search over your docs, ontology bindings, and make targets, exposed over MCP, with an operating skill that teaches the agent when to search.",
   "author": {
     "name": "Sergei Fedorov",
